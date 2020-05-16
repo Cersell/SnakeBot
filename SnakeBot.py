@@ -13,6 +13,7 @@ bot = commands.Bot(command_prefix="$")
 
 #Command to create all channels with the team name
 @bot.command(name="addteam")
+@commands.has_role('Admin')
 async def addteam(ctx, *args):
     # If the amount of arguments is not correct then it explains how to use the command
     if len(args)!=2:
@@ -46,6 +47,7 @@ async def addteam(ctx, *args):
 
 #Command to delete all channels related to the team
 @bot.command(name="delteam")
+@commands.has_role('Admin')
 async def delteam(ctx, *args):
     # If the amount of arguments is not correct then it explains how to use the command
     if len(args)!=1:

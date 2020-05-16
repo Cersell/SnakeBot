@@ -23,9 +23,9 @@ async def addteam(ctx, *args):
         roles = ctx.guild.roles
         teamName = args[1]
         teamRole = await ctx.guild.create_role(name=teamName)
-        modRole = await getrole(585433328354721825, roles)
-        captainRole = await getrole(585433197106561035, roles)
-        adminRole = await getrole(585213220764123186, roles)
+        modRole = await getrolebyID(711264821848571925, roles)
+        captainRole = await getrolebyID(711264845307052105, roles)
+        everyoneRole = await getrolebyID(710922062729969795,roles)
         # Creates a category with the team name
         await ctx.guild.create_category(teamName)
         # Finds the category with the team name and sets it as the category to work on
@@ -34,8 +34,8 @@ async def addteam(ctx, *args):
         # Sets the role and its perms for the category
         await currentcategory.set_permissions(teamRole, read_messages=True, view_channel=True, connect=True)
         await currentcategory.set_permissions(captainRole, move_members=True, connect=True, read_messages=True, view_channel=True)
-        await currentcategory.set_permissions(modRole, read=True, connect=True)
-        await currentcategory.set_permissions(adminRole, administrator=True)
+        await currentcategory.set_permissions(modRole, read_messages=True, connect=True)
+        await currentcategory.set_permissions(everyoneRole, read_messages=False, connect=False)
         # Creates all channels to the team name category
         await ctx.guild.create_text_channel("team-schedule", category=currentcategory)
         await ctx.guild.create_text_channel("team-availability", category=currentcategory)
@@ -47,13 +47,19 @@ async def addteam(ctx, *args):
 #Command to delete all channels related to the team
 @bot.command(name="delteam")
 async def delteam(ctx, *args):
-    teamName = args[0]
-    currentcategory = None
-    categories = ctx.guild.categories
     # If the amount of arguments is not correct then it explains how to use the command
     if len(args)!=1:
         await ctx.send("The format to use this command is: $delteam {teamname}")
     else:
+        teamName = args[0]
+        currentcategory = None
+        categories = ctx.guild.categories
+        # checks roles and deletes the team role
+        roles = ctx.guild.roles
+        role = await getrolebyName(teamName, roles)
+        print("--------------------------------------------------------------")
+        print(role)
+        await role.delete()
         # Gets the category with the team name and checks if it exists
         currentcategory = await getcategories(teamName, categories)
         if(currentcategory==None):
@@ -76,6 +82,7 @@ async def delteam(ctx, *args):
             # Delete all channels in the list.
             for channel in channelsToDelete:
                 await channel.delete()
+            
 
 async def getcategories(teamName, categories):
     for category in categories:
@@ -83,10 +90,19 @@ async def getcategories(teamName, categories):
             return category
     return None
 
-async def getrole(roleID, roles):
+async def getrolebyID(roleID, roles):
     for role in roles:
         if role.id == roleID:
             return role
     return None
+
+async def getrolebyName(roleName, roles):
+    print("------------------------roleName-------------------")
+    print(roleName)
+    print("-------------------------roles----------------")
+    print(roles)
+    for role in roles:
+        if role.name == roleName:
+            return role
 
 bot.run(TOKEN)

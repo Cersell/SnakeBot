@@ -24,9 +24,9 @@ async def addteam(ctx, *args):
         roles = ctx.guild.roles
         teamName = args[1]
         teamRole = await ctx.guild.create_role(name=teamName)
-        modRole = await getrolebyID(711264821848571925, roles)
-        captainRole = await getrolebyID(711264845307052105, roles)
-        everyoneRole = await getrolebyID(710922062729969795,roles)
+        modRole = await getrolebyName('Moderator', roles)
+        captainRole = await getrolebyName('Captain (2v2)', roles)
+        everyoneRole = await getrolebyName('@everyone',roles)
         # Creates a category with the team name
         await ctx.guild.create_category(teamName)
         # Finds the category with the team name and sets it as the category to work on
@@ -59,31 +59,32 @@ async def delteam(ctx, *args):
         # checks roles and deletes the team role
         roles = ctx.guild.roles
         role = await getrolebyName(teamName, roles)
-        print("--------------------------------------------------------------")
-        print(role)
+        #print("------------------------------Main Command--------------------------------")
+        #print(role)
         await role.delete()
         # Gets the category with the team name and checks if it exists
         currentcategory = await getcategories(teamName, categories)
         if(currentcategory==None):
             await ctx.send("The team " + teamName + " does not exist.")
         else:
+            categoryID = currentcategory.id
             # Instantiates a list of channel objects to be deleted and a toggle to be switched when the team name has been found.
             channelsToDelete = []
-            channeltoggle = False 
-            # Each channel is checked for the occurance of the team name
+            # Each channel is checked for the occurance of the category ID
             for channel in ctx.guild.channels:
-                # Finds the first occurance of the team name, if it is the team name the toggle is switched and the channel is added to a list to be deleted
-                if channel.name == teamName:
-                    channeltoggle = True
+                if(channel.category_id == categoryID):
                     channelsToDelete.append(channel)
-                    # If the toggle has been switched then add all channels to the list until the team name is found again
-                elif channeltoggle == True:
-                    if channel.name == teamName:
-                        channeltoggle = False
-                    channelsToDelete.append(channel)
-            # Delete all channels in the list.
             for channel in channelsToDelete:
                 await channel.delete()
+            await currentcategory.delete()
+
+
+@bot.command(name="categories")
+@commands.has_role('Admin')
+async def categories(ctx):
+    categories = ctx.guild.categories
+    for category in categories:
+        print(category)
             
 
 async def getcategories(teamName, categories):
@@ -99,10 +100,10 @@ async def getrolebyID(roleID, roles):
     return None
 
 async def getrolebyName(roleName, roles):
-    print("------------------------roleName-------------------")
-    print(roleName)
-    print("-------------------------roles----------------")
-    print(roles)
+    #print("----------getrolebyName--------------roleName-------------------")
+    #print(roleName)
+    #print("--------------getrolebyName-----------roles----------------")
+    #print(roles)
     for role in roles:
         if role.name == roleName:
             return role

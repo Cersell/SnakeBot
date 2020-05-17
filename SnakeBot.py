@@ -16,14 +16,15 @@ bot = commands.Bot(command_prefix="$")
 @commands.has_role('Admin')
 async def addteam(ctx, *args):
     # If the amount of arguments is not correct then it explains how to use the command
-    if len(args)!=2:
-        await ctx.send("The format to use this command is: $addteam {tier} {teamname}")
+    if len(args)!=3:
+        await ctx.send("The format to use this command is: $addteam {tier='1,2,3'} {teamname} {circuit='1v1,2v2,3v3'}")
     else:
         # Instantiates the arguments into variables
-        #tier = args[0]
+        tier = args[0]
         roles = ctx.guild.roles
         teamName = args[1]
-        teamRole = await ctx.guild.create_role(name=teamName)
+        teamCircuit = args[2]
+        teamRole = await ctx.guild.create_role(name=str(teamName + ' Tier ' + tier + ' (' + teamCircuit + ')'), colour=discord.Colour(int('9b59b6',16)))
         modRole = await getrolebyName('Moderator', roles)
         captainRole = await getrolebyName('Captain (2v2)', roles)
         everyoneRole = await getrolebyName('@everyone',roles)
@@ -59,8 +60,6 @@ async def delteam(ctx, *args):
         # checks roles and deletes the team role
         roles = ctx.guild.roles
         role = await getrolebyName(teamName, roles)
-        #print("------------------------------Main Command--------------------------------")
-        #print(role)
         await role.delete()
         # Gets the category with the team name and checks if it exists
         currentcategory = await getcategories(teamName, categories)
@@ -85,6 +84,12 @@ async def categories(ctx):
     categories = ctx.guild.categories
     for category in categories:
         print(category)
+
+@bot.command(name="roles")
+@commands.has_role('Admin')
+async def roles(ctx):
+    roles = ctx.guild.roles
+    print(roles)
             
 
 async def getcategories(teamName, categories):
@@ -100,10 +105,6 @@ async def getrolebyID(roleID, roles):
     return None
 
 async def getrolebyName(roleName, roles):
-    #print("----------getrolebyName--------------roleName-------------------")
-    #print(roleName)
-    #print("--------------getrolebyName-----------roles----------------")
-    #print(roles)
     for role in roles:
         if role.name == roleName:
             return role
